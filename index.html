@@ -29,6 +29,34 @@
       <p class="lead">Arrastra las tarjetas entre columnas o usa las flechas. Todo se guarda solo en tu navegador.</p>
     </section>
 
+        <form id="new-task" class="new-task card">
+      <label for="task-title" class="sr-only">Nueva tarea</label>
+      <input id="task-title" placeholder="¿Qué tienes que hacer?" maxlength="80" autocomplete="off" required>
+      <label for="task-priority" class="sr-only">Prioridad</label>
+      <select id="task-priority">
+        <option value="alta">Prioridad alta</option>
+        <option value="media" selected>Prioridad media</option>
+        <option value="baja">Prioridad baja</option>
+      </select>
+      <button class="btn" type="submit">Agregar</button>
+    </form>
+
+    <div id="board" class="board">
+      <section class="column" data-status="todo" aria-labelledby="col-todo">
+        <header class="column-head"><h2 id="col-todo">Pendiente</h2><span class="count" data-count="todo">0</span></header>
+        <ul class="list" data-status="todo" data-empty="Sin tareas pendientes"></ul>
+      </section>
+      <section class="column" data-status="doing" aria-labelledby="col-doing">
+        <header class="column-head"><h2 id="col-doing">En progreso</h2><span class="count" data-count="doing">0</span></header>
+        <ul class="list" data-status="doing" data-empty="Nada en progreso"></ul>
+      </section>
+      <section class="column" data-status="done" aria-labelledby="col-done">
+        <header class="column-head"><h2 id="col-done">Hecho</h2><span class="count" data-count="done">0</span></header>
+        <ul class="list" data-status="done" data-empty="Todavía nada terminado"></ul>
+        <button id="clear-done" class="btn btn-ghost clear-done" type="button">Limpiar terminadas</button>
+      </section>
+    </div>
+
   </main>
 
   <footer class="footer container">

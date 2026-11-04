@@ -120,3 +120,45 @@ input, select {
 input:focus, select:focus { border-color: var(--c1); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c1) 25%, transparent); }
 
 .footer { padding: 32px 0; color: var(--muted); font-size: .9rem; text-align: center; }
+
+
+/* =========================================================
+   Presentación y formulario
+   ========================================================= */
+.intro { padding: 32px 0 24px; }
+.intro h1 { font-size: clamp(1.9rem, 6vw, 3rem); letter-spacing: -.02em; }
+.lead { color: var(--muted); max-width: 60ch; margin: 12px 0 0; }
+
+.new-task { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.new-task input { flex: 1 1 220px; }
+
+/* =========================================================
+   Tablero y columnas
+   ========================================================= */
+.board { display: grid; gap: 16px; padding-bottom: 16px; }
+.column {
+  display: flex; flex-direction: column; padding: 16px; border-radius: var(--radius);
+  background: var(--bg-2); border: 1px solid var(--border);
+  transition: border-color .2s, background-color .2s;
+}
+/* Resalta la columna mientras arrastras una tarjeta encima */
+.column.over { border-color: var(--c1); background: color-mix(in srgb, var(--c1) 10%, var(--bg-2)); }
+.column[data-status="todo"] { --dot: var(--c1); }
+.column[data-status="doing"] { --dot: var(--c2); }
+.column[data-status="done"] { --dot: var(--c3); }
+.column-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.column-head::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--dot); }
+.column-head h2 { font-size: 1.05rem; }
+.count {
+  margin-left: auto; min-width: 26px; padding: 0 8px; border-radius: 999px;
+  text-align: center; font-size: .85rem; font-weight: 600; background: var(--surface);
+}
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; align-content: start; min-height: 80px; }
+/* Mensaje cuando la columna no tiene tareas, tomado del atributo data-empty */
+.list:empty::before {
+  content: attr(data-empty); display: grid; place-items: center; min-height: 80px;
+  border: 1px dashed var(--border); border-radius: var(--radius-sm); color: var(--muted); font-size: .9rem;
+}
+.clear-done { align-self: flex-start; margin-top: 12px; padding: 6px 12px; font-size: .85rem; }
+.clear-done[hidden] { display: none; }
