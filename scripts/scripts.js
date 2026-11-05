@@ -142,4 +142,38 @@ document.getElementById('clear-done').addEventListener('click', () => {
   render();
 });
 
+// ===== Arrastrar y soltar =====
+board.addEventListener('dragstart', e => {
+  const box = e.target.closest('.task');
+  if (!box) return;
+  e.dataTransfer.setData('text/plain', box.dataset.id);
+  e.dataTransfer.effectAllowed = 'move';
+  box.classList.add('dragging');
+});
+
+board.addEventListener('dragend', e => {
+  e.target.closest('.task')?.classList.remove('dragging');
+  board.querySelectorAll('.column.over').forEach(c => c.classList.remove('over'));
+});
+
+board.querySelectorAll('.column').forEach(column => {
+  column.addEventListener('dragover', e => {
+    column.classList.add('over');
+  });
+  column.addEventListener('dragleave', e => {
+    if (!column.contains(e.relatedTarget)) column.classList.remove('over');
+  });
+  column.addEventListener('drop', e => {
+    e.preventDefault();
+    column.classList.remove('over');
+    moveTo(e.dataTransfer.getData('text/plain'), column.dataset.status);
+  });
+   column.addEventListener('dragover', e => {
+    e.preventDefault(); // sin esto el navegador no deja soltar aquí
+    column.classList.add('over');
+  });
+});
+
+
+
 render();
