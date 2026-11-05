@@ -45,8 +45,19 @@ function el(tag, className, text) {
 }
 
 // ===== Dibujar el tablero =====
-function actionButton(action, symbol, label, hidden) {
-  const btn = el('button', 'icon-btn', symbol);
+// Crea <svg><use href="#i-plus"></use></svg> con un ícono de los que están en index.html
+function icon(name) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `#i-${name}`);
+  svg.append(use);
+  svg.setAttribute('aria-hidden', 'true');
+  return svg;
+}
+
+function actionButton(action, iconName, label, hidden) {
+  const btn = el('button', 'icon-btn');
+  btn.append(icon(iconName));
   btn.type = 'button';
   btn.dataset.action = action;
   btn.setAttribute('aria-label', label);
@@ -66,9 +77,9 @@ function card(task, newCardId) {
 
   const actions = el('div', 'task-actions');
   actions.append(
-    actionButton('left', '←', prev ? `Mover a ${NAMES[prev]}` : '', !prev),
-    actionButton('right', '→', next ? `Mover a ${NAMES[next]}` : '', !next),
-    actionButton('delete', '✕', 'Eliminar tarea', false),
+    actionButton('left', 'left', prev ? `Mover a ${NAMES[prev]}` : '', !prev),
+    actionButton('right', 'right', next ? `Mover a ${NAMES[next]}` : '', !next),
+    actionButton('delete', 'trash', 'Eliminar tarea', false),
   );
   li.append(el('span', 'priority', PRIORITIES[task.priority]), el('p', 'task-title', task.title), actions);
   return li;
@@ -82,6 +93,13 @@ function render(newCardId) {
     board.querySelector(`[data-count="${status}"]`).textContent = columnTasks.length;
   });
   document.getElementById('clear-done').hidden = !tasks.some(t => t.status === 'done');
+
+  // Progreso: el anillo se llena con la variable --pct (de 0 a 100)
+  const done = tasks.filter(t => t.status === 'done').length;
+  const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  document.getElementById('ring').style.setProperty('--pct', pct);
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-text').textContent = `${done} de ${tasks.length} tareas terminadas`;
 }
 
 // ===== Acciones =====
@@ -158,6 +176,7 @@ board.addEventListener('dragend', e => {
 
 board.querySelectorAll('.column').forEach(column => {
   column.addEventListener('dragover', e => {
+    e.preventDefault(); // sin esto el navegador no deja soltar aquí
     column.classList.add('over');
   });
   column.addEventListener('dragleave', e => {
@@ -168,12 +187,16 @@ board.querySelectorAll('.column').forEach(column => {
     column.classList.remove('over');
     moveTo(e.dataTransfer.getData('text/plain'), column.dataset.status);
   });
-   column.addEventListener('dragover', e => {
-    e.preventDefault(); // sin esto el navegador no deja soltar aquí
-    column.classList.add('over');
-  });
 });
 
-
-
 render();
+
+// ===== Modo claro / oscuro =====
+document.getElementById('theme-btn').addEventListener('click', () => {
+  const root = document.documentElement;
+  const isDark = root.dataset.theme
+    ? root.dataset.theme === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = isDark ? 'light' : 'dark';
+  try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+});
