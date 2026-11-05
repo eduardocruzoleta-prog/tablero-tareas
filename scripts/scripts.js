@@ -84,6 +84,34 @@ function render(newCardId) {
   document.getElementById('clear-done').hidden = !tasks.some(t => t.status === 'done');
 }
 
+// ===== Acciones =====
+function moveTo(id, status) {
+  const task = tasks.find(t => t.id === id);
+  if (!task || task.status === status) return;
+  task.status = status;
+  // Se pasa al final para que aparezca abajo en su nueva columna
+  tasks = tasks.filter(t => t !== task).concat(task);
+  save();
+  render(id);
+}
+
+function removeTask(id) {
+  const box = board.querySelector(`[data-id="${id}"]`);
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    tasks = tasks.filter(t => t.id !== id);
+    save();
+    render();
+  };
+  if (!box || reduceMotion) return finish();
+  box.classList.add('leave');
+  box.addEventListener('animationend', finish, { once: true });
+  // Por si el navegador no avisa (pestaña en segundo plano), no se queda trabado
+  setTimeout(finish, 400);
+}
+
 form.addEventListener('submit', e => {
   e.preventDefault();
   const title = titleInput.value.trim();
@@ -94,6 +122,24 @@ form.addEventListener('submit', e => {
   render(task.id);
   form.reset();
   titleInput.focus();
+});
+
+// Un solo listener para todos los botones de las tarjetas (delegación de eventos)
+board.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = btn.closest('.task').dataset.id;
+  const task = tasks.find(t => t.id === id);
+  const index = STATUSES.indexOf(task.status);
+  if (btn.dataset.action === 'left') moveTo(id, STATUSES[index - 1]);
+  if (btn.dataset.action === 'right') moveTo(id, STATUSES[index + 1]);
+  if (btn.dataset.action === 'delete') removeTask(id);
+});
+
+document.getElementById('clear-done').addEventListener('click', () => {
+  tasks = tasks.filter(t => t.status !== 'done');
+  save();
+  render();
 });
 
 render();
